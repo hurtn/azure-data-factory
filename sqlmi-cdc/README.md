@@ -1,19 +1,19 @@
 ---
-title: Incrementally copy data using Change Tracking
-description: In this tutorial, you create an Azure Data Factory pipeline that copies delta data incrementally from multiple tables in an on-premises SQL Server database to an Azure SQL database.
+title: Incrementally copy data using Change Data Capture
+description: In this tutorial, you create an Azure Data Factory pipeline that copies delta data incrementally from a table in Azure SQL Managed Instance database to Azure Storage.
 services: data-factory
-ms.author: yexu
-author: dearandyxu
-manager: shwang
-ms.reviewer: douglasl
+ms.author: nihurt
+author: hurtn
+manager: 
+ms.reviewer: 
 ms.service: data-factory
 ms.workload: data-services
 ms.topic: tutorial
-ms.custom: seo-lt-2019; seo-dt-2019
-ms.date: 01/12/2018
+ms.custom: 
+ms.date: 08/04/2020
 ---
 
-# Incrementally load data from Azure SQL Managed Instance to Azure Blob Storage using change data capture
+# Incrementally load data from Azure SQL Managed Instance to Azure Storage using change data capture
 
 In this tutorial, you create an Azure data factory with a pipeline that loads delta data based on **change data capture** information in the source Azure SQL Managed Instance database to an Azure blob storage.  
 
@@ -23,19 +23,19 @@ You perform the following steps in this tutorial:
 > * Prepare the source data store
 > * Create a data factory.
 > * Create linked services.
-> * Create source, sink, and change tracking datasets.
+> * Create source, sink, and change data capture datasets.
 > * Create, run, and monitor the full copy pipeline
 > * Add or update data in the source table
 > * Create, run, and monitor the incremental copy pipeline
 
 ## Overview
-In a data integration solution, incrementally loading data after initial data loads is a widely used scenario. In some cases, the changed data within a period in your source data store can be easily to sliced up (for example, LastModifyTime, CreationTime). In some cases, there is no explicit way to identify the delta data from last time you processed the data. The Change Tracking technology supported by data stores such as Azure SQL Database and SQL Server can be used to identify the delta data.  This tutorial describes how to use Azure Data Factory with SQL Change Tracking technology to incrementally load delta data from Azure SQL Database into Azure Blob Storage.  For more concrete information about SQL Change Tracking technology, see [Change tracking in SQL Server](/sql/relational-databases/track-changes/about-change-tracking-sql-server).
+In a data integration solution, incrementally loading data after initial data loads is a widely used scenario. In some cases, the changed data within a period in your source data store can be easily to sliced up (for example, LastModifyTime, CreationTime). In some cases, there is no explicit way to identify the delta data from last time you processed the data. The Change Data Capture technology supported by data stores such as Azure SQL Managed Instances and SQL Server can be used to identify the delta data.  This tutorial describes how to use Azure Data Factory with SQL Change Data Capture technology to incrementally load delta data from Azure SQL Managed Instance into Azure Blob Storage.  For more concrete information about SQL Change Data Capture technology, see [Change data capture in SQL Server](/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver15).
 
 ## End-to-end workflow
-Here are the typical end-to-end workflow steps to incrementally load data using the Change Tracking technology.
+Here are the typical end-to-end workflow steps to incrementally load data using the Change Data Capture technology.
 
 > [!NOTE]
-> Both Azure SQL Database and SQL Server support the Change Tracking technology. This tutorial uses Azure SQL Database as the source data store. You can also use an on-premises SQL Server.
+> Both Azure SQL Managed Instance and SQL Server support the Change Data Capture technology. This tutorial uses Azure SQL Managed Instance as the source data store. You can also use an on-premises SQL Server.
 
 1. **Initial loading of historical data** (run once):
     1. Enable Change Tracking technology in the source Azure SQL database.
