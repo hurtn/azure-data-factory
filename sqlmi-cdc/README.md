@@ -167,8 +167,11 @@ In this step, you link your Azure Storage Account to the data factory.
    ![Azure Storage Account settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/azure-storage-linked-service-settings.png)
 
 
-### Create Azure SQL Database linked service.
+### Create Azure SQL MI Database linked service.
 In this step, you link your Azure SQL database to the data factory.
+
+    > [!NOTE]
+    > For those using SQL MI see here for information regarding access via public vs private endpoint. If using private endpoint one would need to run this pipeline using a self-hosted integration runtime. The same would apply to those running SQL Server on-prem, in a VM or VNet scenarios.
 
 1. Click **Connections**, and click **+ New**.
 2. In the **New Linked Service** window, select **Azure SQL Database**, and click **Continue**.
