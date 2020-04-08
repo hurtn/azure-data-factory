@@ -29,18 +29,18 @@ You perform the following steps in this tutorial:
 > * Create, run, and monitor the incremental copy pipeline
 
 ## Overview
-In a data integration solution, incrementally loading data after initial data loads is a widely used scenario. In some cases, the changed data within a period in your source data store can be easily to sliced up (for example, LastModifyTime, CreationTime). In some cases, there is no explicit way to identify the delta data from last time you processed the data. The Change Data Capture technology supported by data stores such as Azure SQL Managed Instances and SQL Server can be used to identify the delta data.  This tutorial describes how to use Azure Data Factory with SQL Change Data Capture technology to incrementally load delta data from Azure SQL Managed Instance into Azure Blob Storage.  For more concrete information about SQL Change Data Capture technology, see [Change data capture in SQL Server](/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver15).
+In a data integration solution, incrementally loading data after initial data loads is a widely used scenario. In some cases, the changed data within a period in your source data store can be easily to sliced up (for example, LastModifyTime, CreationTime). In some cases, there is no explicit way to identify the delta data from last time you processed the data. The Change Data Capture technology supported by data stores such as Azure SQL Managed Instances (MI) and SQL Server can be used to identify the delta data.  This tutorial describes how to use Azure Data Factory with SQL Change Data Capture technology to incrementally load delta data from Azure SQL Managed Instance into Azure Blob Storage.  For more concrete information about SQL Change Data Capture technology, see [Change data capture in SQL Server](/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver15).
 
 ## End-to-end workflow
 Here are the typical end-to-end workflow steps to incrementally load data using the Change Data Capture technology.
 
 > [!NOTE]
-> Both Azure SQL Managed Instance and SQL Server support the Change Data Capture technology. This tutorial uses Azure SQL Managed Instance as the source data store. You can also use an on-premises SQL Server.
+> Both Azure SQL MI and SQL Server support the Change Data Capture technology. This tutorial uses Azure SQL Managed Instance as the source data store. You can also use an on-premises SQL Server.
 
 1. **Initial loading of historical data** (run once):
-    1. Enable Change Tracking technology in the source Azure SQL database.
-    2. Get the initial value of SYS_CHANGE_VERSION in the Azure SQL database as the baseline to capture changed data.
-    3. Load full data from the Azure SQL database into an Azure blob storage.
+    1. Enable Change Data Capture technology in the source Azure SQL MI database.
+    2. Get the initial value of SYS_CHANGE_VERSION in the Azure SQL MI database as the baseline to capture changed data.
+    3. Load full data from the Azure SQL MI database into an Azure blob storage.
 2. **Incremental loading of delta data on a schedule** (run periodically after the initial loading of data):
     1. Get the old and new SYS_CHANGE_VERSION values.
     3. Load the delta data by joining the primary keys of changed rows (between two SYS_CHANGE_VERSION values) from **sys.change_tracking_tables** with data in the **source table**, and then move the delta data to destination.
@@ -69,80 +69,46 @@ If you don't have an Azure subscription, create a [free](https://azure.microsoft
 ### Create a data source table in your Azure SQL database
 1. Launch **SQL Server Management Studio**, and connect to your Azure SQL server.
 2. In **Server Explorer**, right-click your **database** and choose the **New Query**.
-3. Run the following SQL command against your Azure SQL database to create a table named `data_source_table` as data source store.  
+3. Run the following SQL command against your Azure SQL database to create a table named `customers` as data source store.  
 
     ```sql
-    create table data_source_table
+    create table customers 
     (
-        PersonID int NOT NULL,
-        Name varchar(255),
-        Age int
-        PRIMARY KEY (PersonID)
-    );
-
-    INSERT INTO data_source_table
-        (PersonID, Name, Age)
-    VALUES
-        (1, 'aaaa', 21),
-        (2, 'bbbb', 24),
-        (3, 'cccc', 20),
-        (4, 'dddd', 26),
-        (5, 'eeee', 22);
-
+    	customer_id int, 
+	first_name varchar(50), 
+	last_name varchar(50), 
+	email varchar(100), 
+	city varchar(50), CONSTRAINT "PK_Customers" PRIMARY KEY CLUSTERED ("customer_id") 
+     );
     ```
-4. Enable **Change Tracking** mechanism on your database and the source table (data_source_table) by running the following SQL query:
+4. Enable **Change Data Capture** mechanism on your database and the source table (customers) by running the following SQL query:
 
     > [!NOTE]
-    > - Replace &lt;your database name&gt; with the name of your Azure SQL database that has the data_source_table.
-    > - The changed data is kept for two days in the current example. If you load the changed data for every three days or more, some changed data is not included.  You need to either change the value of CHANGE_RETENTION to a bigger number. Alternatively, ensure that your period to load the changed data is within two days. For more information, see [Enable change tracking for a database](/sql/relational-databases/track-changes/enable-and-disable-change-tracking-sql-server#enable-change-tracking-for-a-database)
+    > - Replace &lt;your source schema name&gt; with the schema of your Azure SQL database that has the customers table.
+    > - Change data capture doesn't do anything as part of the transactions that change the table being tracked. Instead, the insert, update, and delete operations are written to the transaction log. Data that is deposited in change tables will grow unmanageably if you do not periodically and systematically prune the data. For more information, see [Enable change tracking for a database](/sql/relational-databases/track-changes/enable-and-disable-change-tracking-sql-server#enable-change-tracking-for-a-database)
 
     ```sql
-    ALTER DATABASE <your database name>
-    SET CHANGE_TRACKING = ON  
-    (CHANGE_RETENTION = 2 DAYS, AUTO_CLEANUP = ON)  
-
-    ALTER TABLE data_source_table
-    ENABLE CHANGE_TRACKING  
-    WITH (TRACK_COLUMNS_UPDATED = ON)
+    EXEC sys.sp_cdc_enable_db 
+    
+    EXEC sys.sp_cdc_enable_table
+    @source_schema = 'dbo',
+    @source_name = 'customers', 
+    @role_name = 'null',
+    @supports_net_changes = 1
     ```
-5. Create a new table and store the ChangeTracking_version with a default value by running the following query:
+5. Insert data into the customers table by running the following command:
 
     ```sql
-    create table table_store_ChangeTracking_version
-    (
-        TableName varchar(255),
-        SYS_CHANGE_VERSION BIGINT,
-    );
-
-    DECLARE @ChangeTracking_version BIGINT
-    SET @ChangeTracking_version = CHANGE_TRACKING_CURRENT_VERSION();  
-
-    INSERT INTO table_store_ChangeTracking_version
-    VALUES ('data_source_table', @ChangeTracking_version)
-    ```
+     insert into customers 
+     	(customer_id, first_name, last_name, email, city) 
+     values 
+     	(1, 'Chevy', 'Leward', 'cleward0@mapy.cz', 'Reading'),
+     	(2, 'Sayre', 'Ateggart', 'sateggart1@nih.gov', 'Portsmouth')
+        (3, 'Nathalia', 'Seckom', 'nseckom2@blogger.com', 'Portsmouth');
+	```
 
     > [!NOTE]
-    > If the data is not changed after you enabled the change tracking for SQL Database, the value of the change tracking version is 0.
-6. Run the following query to create a stored procedure in your Azure SQL database. The pipeline invokes this stored procedure to update the change tracking version in the table you created in the previous step.
-
-    ```sql
-    CREATE PROCEDURE Update_ChangeTracking_Version @CurrentTrackingVersion BIGINT, @TableName varchar(50)
-    AS
-
-    BEGIN
-
-        UPDATE table_store_ChangeTracking_version
-        SET [SYS_CHANGE_VERSION] = @CurrentTrackingVersion
-    WHERE [TableName] = @TableName
-
-    END    
-    ```
-
-### Azure PowerShell
-
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
-
-Install the latest Azure PowerShell modules by following  instructions in [How to install and configure Azure PowerShell](/powershell/azure/install-Az-ps).
+    > No historical changes to the table are captured prior to change data capture being enabled.
 
 ## Create a data factory
 
