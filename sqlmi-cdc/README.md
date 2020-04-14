@@ -168,10 +168,10 @@ In this step, you link your Azure Storage Account to the data factory.
 
 
 ### Create Azure SQL MI Database linked service.
-In this step, you link your Azure SQL database to the data factory.
+In this step, you link your Azure SQL MI database to the data factory.
 
     > [!NOTE]
-    > For those using SQL MI see here for information regarding access via public vs private endpoint. If using private endpoint one would need to run this pipeline using a self-hosted integration runtime. The same would apply to those running SQL Server on-prem, in a VM or VNet scenarios.
+    > For those using SQL MI see [here](https://docs.microsoft.com/en-us/azure/data-factory/connector-azure-sql-database-managed-instance#prerequisites) for information regarding access via public vs private endpoint. If using private endpoint one would need to run this pipeline using a self-hosted integration runtime. The same would apply to those running SQL Server on-prem, in a VM or VNet scenarios.
 
 1. Click **Connections**, and click **+ New**.
 2. In the **New Linked Service** window, select **Azure SQL Database**, and click **Continue**.
@@ -185,7 +185,7 @@ In this step, you link your Azure SQL database to the data factory.
     7. Click **Test connection** to test the connection.
     8. Click **Save** to save the linked service.
 
-       ![Azure SQL Database linked service settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/azure-sql-database-linked-service-settings.png)
+       ![Azure SQL MI Database linked service settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/azure-sql-mi-database-linked-service-settings.png)
 
 ## Create datasets
 In this step, you create datasets to represent data source, data destination. and the place to store the SYS_CHANGE_VERSION.
@@ -196,7 +196,7 @@ In this step, you create a dataset to represent the source data.
 1. In the treeview, click **+ (plus)**, and click **Dataset**.
 
    ![New Dataset menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/new-dataset-menu.png)
-2. Select **Azure SQL Database**, and click **Finish**.
+2. Select **Azure SQL Database Managed Instance**, and click **Continue**.
 
    ![Source dataset type - Azure SQL Database](./media/tutorial-incremental-copy-change-tracking-feature-portal/select-azure-sql-database.png)
 3. You see a new tab for configuring the dataset. You also see the dataset in the treeview. In the **Properties** window, change the name of the dataset to **SourceDataset**.
