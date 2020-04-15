@@ -177,7 +177,7 @@ In this step, you link your Azure SQL MI database to the data factory.
 2. In the **New Linked Service** window, select **Azure SQL Database**, and click **Continue**.
 3. In the **New Linked Service** window, do the following steps:
 
-    1. Enter **AzureSqlDatabaseLinkedService** for the **Name** field.
+    1. Enter **AzureSqlMI1** for the **Name** field.
     2. Select your Azure SQL server for the **Server name** field.
     4. Select your Azure SQL database for the **Database name** field.
     5. Enter name of the user for the **User name** field.
@@ -228,96 +228,8 @@ In this step, you create a dataset to represent the data that is copied from the
 
        ![Sink dataset - connection](./media/tutorial-incremental-copy-change-tracking-feature-portal/sink-dataset-configuration.png)
 
-### Create a dataset to represent change tracking data
-In this step, you create a dataset for storing the change tracking version.  You created the table table_store_ChangeTracking_version as part of the prerequisites.
-
-1. In the treeview, click **+ (plus)**, and click **Dataset**.
-2. Select **Azure SQL Database**, and click **Finish**.
-3. You see a new tab for configuring the dataset. You also see the dataset in the treeview. In the **Properties** window, change the name of the dataset to **ChangeTrackingDataset**.
-4. Switch to the **Connection** tab, and do the following steps:
-
-    1. Select **AzureSqlDatabaseLinkedService** for **Linked service**.
-    2. Select **[dbo].[table_store_ChangeTracking_version]** for **Table**.
-
-## Create a pipeline for the full copy
-In this step, you create a pipeline with a copy activity that copies the entire data from the source data store (Azure SQL Database) to the destination data store (Azure Blob Storage).
-
-1. Click **+ (plus)** in the left pane, and click **Pipeline**.
-
-    ![New pipeline menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/new-pipeline-menu.png)
-2. You see a new tab for configuring the pipeline. You also see the pipeline in the treeview. In the **Properties** window, change the name of the pipeline to **FullCopyPipeline**.
-
-    ![New pipeline menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/full-copy-pipeline-name.png)
-3. In the **Activities** toolbox, expand **Data Flow**, and drag-drop the **Copy** activity to the pipeline designer surface, and set the name **FullCopyActivity**.
-
-    ![Full copy activity-name](./media/tutorial-incremental-copy-change-tracking-feature-portal/full-copy-activity-name.png)
-4. Switch to the **Source** tab, and select **SourceDataset** for the **Source Dataset** field.
-
-    ![Copy activity - source](./media/tutorial-incremental-copy-change-tracking-feature-portal/copy-activity-source.png)
-5. Switch to the **Sink** tab, and select **SinkDataset** for the **Sink Dataset** field.
-
-    ![Copy activity - sink](./media/tutorial-incremental-copy-change-tracking-feature-portal/copy-activity-sink.png)
-6. To validate the pipeline definition, click **Validate** on the toolbar. Confirm that there is no validation error. Close the **Pipeline Validation Report** by clicking **>>**.
-
-    ![Validate the pipeline](./media/tutorial-incremental-copy-change-tracking-feature-portal/full-copy-pipeline-validate.png)
-7. To publish entities (linked services, datasets, and pipelines), click **Publish**. Wait until the publishing succeeds.
-
-    ![Publish button](./media/tutorial-incremental-copy-change-tracking-feature-portal/publish-button.png)
-8. Wait until you see the **Successfully published** message.
-
-    ![Publishing succeeded](./media/tutorial-incremental-copy-change-tracking-feature-portal/publishing-succeeded.png)
-9. You can also see notifications by clicking the **Show Notifications** button on the left. To close the notifications window, click **X**.
-
-    ![Show notifications](./media/tutorial-incremental-copy-change-tracking-feature-portal/show-notifications.png)
-
-
-### Run the full copy pipeline
-Click **Trigger** on the toolbar for the pipeline, and click **Trigger Now**.
-
-![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/trigger-now-menu.png)
-
-### Monitor the full copy pipeline
-
-1. Click the **Monitor** tab on the left. You see the pipeline run in the list and its status. To refresh the list, click **Refresh**. The links in the Actions column let you view activity runs associated with the pipeline run and to rerun the pipeline.
-
-    ![Pipeline runs](./media/tutorial-incremental-copy-change-tracking-feature-portal/monitor-full-copy-pipeline-run.png)
-2. To view activity runs associated with the pipeline run, click the **View Activity Runs** link in the **Actions** column. There is only one activity in the pipeline, so you see only one entry in the list. To switch back to the pipeline runs view, click **Pipelines** link at the top.
-
-    ![Activity runs](./media/tutorial-incremental-copy-change-tracking-feature-portal/activity-runs-full-copy.png)
-
-### Review the results
-You see a file named `incremental-<GUID>.txt` in the `incchgtracking` folder of the `adftutorial` container.
-
-![Output file from full copy](media/tutorial-incremental-copy-change-tracking-feature-portal/full-copy-output-file.png)
-
-The file should have the data from the Azure SQL database:
-
-```
-1,aaaa,21
-2,bbbb,24
-3,cccc,20
-4,dddd,26
-5,eeee,22
-```
-
-## Add more data to the source table
-
-Run the following query against the Azure SQL database to add a row and update a row.
-
-```sql
-INSERT INTO data_source_table
-(PersonID, Name, Age)
-VALUES
-(6, 'new','50');
-
-
-UPDATE data_source_table
-SET [Age] = '10', [name]='update' where [PersonID] = 1
-
-```
-
-## Create a pipeline for the delta copy
-In this step, you create a pipeline with the following activities, and run it periodically. The **lookup activities** get the old and new SYS_CHANGE_VERSION from Azure SQL Database and pass it to copy activity. The **copy activity** copies the inserted/updated/deleted data between the two SYS_CHANGE_VERSION values from Azure SQL Database to Azure Blob Storage. The **stored procedure activity** updates the value of SYS_CHANGE_VERSION for the next pipeline run.
+## Create a pipeline to copy the changed data
+In this step, you create a pipeline which first checks the number of changed records present in the change table using a **lookup activity**. An IF condition activity checks whether the number of changed records is greater than zero and runs a **copy activity** to copy the inserted/updated/deleted data from Azure SQL Database to Azure Blob Storage. Lastly, a tumbling window trigger is configured and the start and end times will be passed to the activities as the start and end window parameters. 
 
 1. In the Data Factory UI, switch to the **Edit** tab. Click **+ (plus)** in the left pane, and click **Pipeline**.
 
@@ -325,44 +237,62 @@ In this step, you create a pipeline with the following activities, and run it pe
 2. You see a new tab for configuring the pipeline. You also see the pipeline in the treeview. In the **Properties** window, change the name of the pipeline to **IncrementalCopyPipeline**.
 
     ![Pipeline name](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-name.png)
-3. Expand **General** in the **Activities** toolbox, and drag-drop the **Lookup** activity to the pipeline designer surface. Set the name of the activity to **LookupLastChangeTrackingVersionActivity**. This activity gets the change tracking version used in the last copy operation that is stored in the table **table_store_ChangeTracking_version**.
+3. Expand **General** in the **Activities** toolbox, and drag-drop the **Lookup** activity to the pipeline designer surface. Set the name of the activity to **GetChangeCount**. This activity gets the number of records in the change table for a given time window.
 
     ![Lookup Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/first-lookup-activity-name.png)
-4. Switch to the **Settings** in the **Properties** window, and select **ChangeTrackingDataset** for the **Source Dataset** field.
+4. Switch to the **Settings** in the **Properties** window:
+    i. Specify the SQL MI dataset name for the **Source Dataset** field. 
+    ii. Select the Query option and enter the following in to the query box:
+	```sql
+	DECLARE  @from_lsn binary(10), @to_lsn binary(10);  
+	SET @from_lsn =sys.fn_cdc_get_min_lsn('dbo_customers');  
+	SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal',  GETDATE());
+	SELECT count(1) changecount FROM cdc.fn_cdc_get_net_changes_dbo_customers(@from_lsn, @to_lsn, 'all')
+	```
+    iii. Enable **First row only**
 
     ![Lookup Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/first-lookup-activity-settings.png)
-5. Drag-and-drop the **Lookup** activity from the **Activities** toolbox to the pipeline designer surface. Set the name of the activity to **LookupCurrentChangeTrackingVersionActivity**. This activity gets the current change tracking version.
+5. Click the **Preview data** button to ensure a valid output is obtained by the lookup activity
+    ![Lookup Activity - preview](./media/tutorial-incremental-copy-change-tracking-feature-portal/first-lookup-activity-preview.png)
+6. Expand **Iteration & conditionals** in the **Activities** toolbox, and drag-drop the **If Condition** activity to the pipeline designer surface. Set the name of the activity to **HasChangedRows**. 
+      ![If Condition Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-name.png)
+7. Switch to the **Activities** in the **Properties** window:
+    i. Enter the following **Expression**
+      ```adf
+      @greater(int(activity('GetChangeCount').output.firstRow.changecount),0)
+      ```
+      ![If Condition Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-setting.png)
+    ii. Click on the pencil icon to edit the True condition.
+    iii. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
+      ![If Condition True - wait](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-wait.png)
+    iv. Click on the IncrementalCopyPipeline breadcrumb to return to the main pipeline.
+8. Run the pipeline in **Debug** mode to verify the pipeline executes successfully. 
 
-    ![Lookup Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/second-lookup-activity-name.png)
-6. Switch to the **Settings** in the **Properties** window, and do the following steps:
+      ![Pipeline - debug](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug.png)
+8. Next, return to the True condition step and delete the **Wait** activity. In the **Activities** toolbox, expand **Move & transform**, and drag-drop the **Copy** activity to the pipeline designer surface. Set the name of the activity to **IncrementalCopyActivity**. 
 
-   1. Select **SourceDataset** for the **Source Dataset** field.
+![Copy Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-name.png)
+9. Switch to the **Source** tab in the **Properties** window, and do the following steps:
+
+   1. Specify the SQL MI dataset name for the **Source Dataset** field. 
    2. Select **Query** for **Use Query**.
    3. Enter the following SQL query for **Query**.
 
-       ```sql
-       SELECT CHANGE_TRACKING_CURRENT_VERSION() as CurrentChangeTrackingVersion
-       ```
-
-      ![Lookup Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/second-lookup-activity-settings.png)
-7. In the **Activities** toolbox, expand **Data Flow**, and drag-drop the **Copy** activity to the pipeline designer surface. Set the name of the activity to **IncrementalCopyActivity**. This activity copies the data between last change tracking version and the current change tracking version to the destination data store.
-
-    ![Copy Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-activity-name.png)
-8. Switch to the **Source** tab in the **Properties** window, and do the following steps:
-
-   1. Select **SourceDataset** for **Source Dataset**.
-   2. Select **Query** for **Use Query**.
-   3. Enter the following SQL query for **Query**.
-
-       ```sql
-       select data_source_table.PersonID,data_source_table.Name,data_source_table.Age, CT.SYS_CHANGE_VERSION, SYS_CHANGE_OPERATION from data_source_table RIGHT OUTER JOIN CHANGETABLE(CHANGES data_source_table, @{activity('LookupLastChangeTrackingVersionActivity').output.firstRow.SYS_CHANGE_VERSION}) as CT on data_source_table.PersonID = CT.PersonID where CT.SYS_CHANGE_VERSION <= @{activity('LookupCurrentChangeTrackingVersionActivity').output.firstRow.CurrentChangeTrackingVersion}
-       ```
+```sql
+     DECLARE @from_lsn binary(10), @to_lsn binary(10); 
+     SET @from_lsn =sys.fn_cdc_get_min_lsn('dbo_customers'); 
+     SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', GETDATE());
+     SELECT * FROM cdc.fn_cdc_get_net_changes_dbo_customers(@from_lsn, @to_lsn, 'all')
+```
 
       ![Copy Activity - source settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-settings.png)
-9. Switch to the **Sink** tab, and select **SinkDataset** for the **Sink Dataset** field.
+10. Click preview to verify that the query returns the changed rows correctly.
+
+    ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-preview.png)
+11. Switch to the **Sink** tab, and specify the Azure Storage dataset for the **Sink Dataset** field.
 
     ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-sink-settings.png)
-10. **Connect both Lookup activities to the Copy activity** one by one. Drag the **green** button attached to the **Lookup** activity to the **Copy** activity.
+12. **Connect both Lookup activities to the Copy activity** one by one. Drag the **green** button attached to the **Lookup** activity to the **Copy** activity.
 
     ![Connect Lookup and Copy activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-lookup-and-copy.png)
 11. Drag-and-drop the **Stored Procedure** activity from the **Activities** toolbox to the pipeline designer surface. Set the name of the activity to **StoredProceduretoUpdateChangeTrackingActivity**. This activity updates the change tracking version in the **table_store_ChangeTracking_version** table.
