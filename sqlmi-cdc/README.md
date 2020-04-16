@@ -383,12 +383,20 @@ In this step, you create a a tumbling window trigger to run the job on a frequen
   ```
   ![Tumbling Window Trigger-2](./media/tutorial-incremental-copy-change-tracking-feature-portal/tumbling-window-trigger-2.png)
   
- Note the trigger will only run once it has been published. Additionally the expected behavior of tumbling window is to run all historical intervals from the start date until now. More information regarding tumbling window triggers can be found here. 
+    > [!NOTE]
+    > Note the trigger will only run once it has been published. Additionally the expected behavior of tumbling window is to run all      historical intervals from the start date until now. More information regarding tumbling window triggers can be found [here](https://docs.microsoft.com/en-us/azure/data-factory/how-to-create-tumbling-window-trigger). 
   
-3. Click **Trigger** on the toolbar for the pipeline, and click **Trigger Now**.
+10. Using **SQL Server Management Studio** make some additional changes to the customer table by running the following SQL:
+    ```sql
+    insert into customers (customer_id, first_name, last_name, email, city) values (4, ‘Farlie’, ‘Hadigate’, ‘fhadigate3@zdnet.com’, ‘Reading’);
+    insert into customers (customer_id, first_name, last_name, email, city) values (5, ‘Anet’, ‘MacColm’, ‘amaccolm4@yellowbook.com’, ‘Portsmouth’);
+    insert into customers (customer_id, first_name, last_name, email, city) values (6, ‘Elonore’, ‘Bearham’, ‘ebearham5@ebay.co.uk’, ‘Portsmouth’);
+    update customers set first_name=’Elon’ where customer_id=6;
+    delete from customers where customer_id=5;
+    ```
+11. Click the **Publish all** button. Wait until you see the **Publishing succeeded** message.  
+12. After a few minutes the pipeline will have triggered and a new file will have been loaded into Azure Storage
 
-    ![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/trigger-now-menu-2.png)
-2. In the **Pipeline Run** window, select **Finish**.
 
 ### Monitor the incremental copy pipeline
 1. Click the **Monitor** tab on the left. You see the pipeline run in the list and its status. To refresh the list, click **Refresh**. The links in the **Actions** column let you view activity runs associated with the pipeline run and to rerun the pipeline.
@@ -400,26 +408,10 @@ In this step, you create a a tumbling window trigger to run the job on a frequen
 
 
 ### Review the results
-You see the second file in the `incchgtracking` folder of the `adftutorial` container.
+You see the second file in the `customers/incremental/YYYY/MM/DD` folder of the `raw` container.
 
-![Output file from incremental copy](media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-output-file.png)
-
-The file should have only the delta data from the Azure SQL database. The record with `U` is the updated row in the database and `I` is the one added row.
-
-```
-1,update,10,2,U
-6,new,50,1,I
-```
-The first three columns are changed data from data_source_table. The last two columns are the metadata from change tracking system table. The fourth column is the SYS_CHANGE_VERSION for each changed row. The fifth column is the operation:  U = update, I = insert.  For details about the change tracking information, see [CHANGETABLE](/sql/relational-databases/system-functions/changetable-transact-sql).
-
-```
-==================================================================
-PersonID Name    Age    SYS_CHANGE_VERSION    SYS_CHANGE_OPERATION
-==================================================================
-1        update  10		2			          U
-6        new     50		1			          I
-```
-
+![Output file from incremental copy](media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-run.png)
+ 
 
 ## Next steps
 Advance to the following tutorial to learn about copying new and changed files only based on their LastModifiedDate:
