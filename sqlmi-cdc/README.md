@@ -257,15 +257,15 @@ In this step, you create a pipeline which first checks the number of changed rec
 6. Expand **Iteration & conditionals** in the **Activities** toolbox, and drag-drop the **If Condition** activity to the pipeline designer surface. Set the name of the activity to **HasChangedRows**. 
       ![If Condition Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-name.png)
 7. Switch to the **Activities** in the **Properties** window:
-     i. Enter the following **Expression**
+    i. Enter the following **Expression**
       ```adf
       @greater(int(activity('GetChangeCount').output.firstRow.changecount),0)
       ```
-      ![If Condition Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-setting.png)
-     ii. Click on the pencil icon to edit the True condition.
-     iii. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
-      ![If Condition True - wait](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-wait.png)
-      iv. Click on the IncrementalCopyPipeline breadcrumb to return to the main pipeline.
+![If Condition Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-setting.png)
+    ii. Click on the pencil icon to edit the True condition.
+    iii. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
+![If Condition True - wait](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-wait.png)
+    iv. Click on the IncrementalCopyPipeline breadcrumb to return to the main pipeline.
 8. Run the pipeline in **Debug** mode to verify the pipeline executes successfully. 
 
       ![Pipeline - debug](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug.png)
