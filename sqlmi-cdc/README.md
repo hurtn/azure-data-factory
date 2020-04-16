@@ -287,19 +287,19 @@ In this step, you create a pipeline which first checks the number of changed rec
 ![Copy Activity - source settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-settings.png)
 10. Click preview to verify that the query returns the changed rows correctly.
 
-    ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-preview.png)
+![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-preview.png)
 11. Switch to the **Sink** tab, and specify the Azure Storage dataset for the **Sink Dataset** field.
 
-    ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-sink-settings.png)
+![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-sink-settings.png)
 12. **Connect both Lookup activities to the Copy activity** one by one. Drag the **green** button attached to the **Lookup** activity to the **Copy** activity.
 
-    ![Connect Lookup and Copy activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-lookup-and-copy.png)
+![Connect Lookup and Copy activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-lookup-and-copy.png)
 11. Drag-and-drop the **Stored Procedure** activity from the **Activities** toolbox to the pipeline designer surface. Set the name of the activity to **StoredProceduretoUpdateChangeTrackingActivity**. This activity updates the change tracking version in the **table_store_ChangeTracking_version** table.
 
-    ![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/stored-procedure-activity-name.png)
+![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/stored-procedure-activity-name.png)
 12. Switch to the *SQL Account** tab, and select **AzureSqlDatabaseLinkedService** for **Linked service**.
 
-    ![Stored Procedure Activity - SQL Account](./media/tutorial-incremental-copy-change-tracking-feature-portal/sql-account-tab.png)
+![Stored Procedure Activity - SQL Account](./media/tutorial-incremental-copy-change-tracking-feature-portal/sql-account-tab.png)
 13. Switch to the **Stored Procedure** tab, and do the following steps:
 
     1. For **Stored procedure name**, select **Update_ChangeTracking_Version**.  
