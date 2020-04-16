@@ -269,7 +269,9 @@ In this step, you create a pipeline which first checks the number of changed rec
    3. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
 
    ![If Condition True - wait](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-wait.png)
+   
    4. Click on the IncrementalCopyPipeline breadcrumb to return to the main pipeline.
+
 8. Run the pipeline in **Debug** mode to verify the pipeline executes successfully. 
 
    ![Pipeline - debug](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug.png)
