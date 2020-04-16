@@ -275,22 +275,24 @@ In this step, you create a pipeline which first checks the number of changed rec
 8. Run the pipeline in **Debug** mode to verify the pipeline executes successfully. 
 
    ![Pipeline - debug](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug.png)
-9. Next, return to the True condition step and delete the **Wait** activity. In the **Activities** toolbox, expand **Move & transform**, and drag-drop the **Copy** activity to the pipeline designer surface. Set the name of the activity to **IncrementalCopyActivity**. 
+9. Next, return to the True condition step and delete the **Wait** activity. In the **Activities** toolbox, expand **Move & transform**, and drag-drop a **Copy** activity to the pipeline designer surface. Set the name of the activity to **IncrementalCopyActivity**. 
 
    ![Copy Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-name.png)
 10. Switch to the **Source** tab in the **Properties** window, and do the following steps:
 
-   1. Specify the SQL MI dataset name for the **Source Dataset** field. 
-   2. Select **Query** for **Use Query**.
-   3. Enter the following SQL query for **Query**.
+    1. Specify the SQL MI dataset name for the **Source Dataset** field. 
+    2. Select **Query** for **Use Query**.
+    3. Enter the following for **Query**.
 
-```sql
-     DECLARE @from_lsn binary(10), @to_lsn binary(10); 
-     SET @from_lsn =sys.fn_cdc_get_min_lsn('dbo_customers'); 
-     SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', GETDATE());
-     SELECT * FROM cdc.fn_cdc_get_net_changes_dbo_customers(@from_lsn, @to_lsn, 'all')
-```
-![Copy Activity - source settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-settings.png)
+    ```sql
+    DECLARE @from_lsn binary(10), @to_lsn binary(10); 
+    SET @from_lsn =sys.fn_cdc_get_min_lsn('dbo_customers'); 
+    SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', GETDATE());
+    SELECT * FROM cdc.fn_cdc_get_net_changes_dbo_customers(@from_lsn, @to_lsn, 'all')
+    ```
+
+    ![Copy Activity - source settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-settings.png)
+
 11. Click preview to verify that the query returns the changed rows correctly.
 
 ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-preview.png)
