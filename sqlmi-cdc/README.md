@@ -342,19 +342,49 @@ In this step, you create a a tumbling window trigger to run the job on a frequen
     ```
 3. Click on the **Sink** tab of the **Copy** activity and click **Open** to edit the dataset properties. Click on the **Parameters** tab and add a new parameter called **triggerStart**    
 
-    ![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/sink-dataset-configuration-2.png)
+    ![Sink Dataset Configuration-3](./media/tutorial-incremental-copy-change-tracking-feature-portal/sink-dataset-configuration-2.png)
 4. Next, configure the dataset properties to store the data in a **customers/incremental** subdirectory with date based partitions.
     1. Click on the **Connection** tab of the dataset properties and add dynamic content for both the **Directory** and the **File** sections. 
     2. Enter the following expression in the **Directory** section by clicking on the dynamic content link under the textbox:
+    
       ```sql
       @concat('customers/incremental/',formatDateTime(dataset().triggerStart,'yyyy/MM/dd'))
       ```
     3. Enter the folllowing expression in the **File** section. This will create file names based on the trigger start date and time, suffixed with the csv extension:
+    
       ```sql
       @concat(formatDateTime(dataset().triggerStart,'yyyyMMddHHmmssfff'),'.csv')
       ```
-    ![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/sink-dataset-configuration-3.png)
+      ![Sink Dataset Configuration-3](./media/tutorial-incremental-copy-change-tracking-feature-portal/sink-dataset-configuration-3.png)
 
+     4. Navigate back to the **Sink** settings in **Copy** activity by clicking on the **IncrementalCopyPipeline** tab. 
+     5. Expand the dataset properties and enter dynamic content in the triggerStart parameter value with the following expression:
+     ```sql
+     @pipeline().parameters.triggerStartTime
+     ```
+      ![Sink Dataset Configuration-4](./media/tutorial-incremental-copy-change-tracking-feature-portal/sink-dataset-configuration-4.png)
+     6. For debugging purposes click on the **Settings** tab and configure the Data integration units to 2. By default this is set to **Auto** which consumes 4 DIUs which is not required for a small copy operation.
+      ![Copy Activity DIU Configuration](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-diu-configuration.png)
+5. Click **Validate** on the toolbar. Confirm that there are no validation errors. Close the **Pipeline Validation Report** window by clicking **>>**.
+6. Click Debug to test the pipeline and ensure the folder structure and output file is generated as expected. Download and open the file to verify the contents. 
+  ![Incremental Copy Debug-3](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug-3.png)
+7. Ensure the parameters are being injected into the query by reviewing the Input parameters of the pipeline run.
+  ![Incremental Copy Debug-4](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug-4.png)
+8. Publish entities (linked services, datasets, and pipelines) to the Data Factory service by clicking the **Publish all** button. Wait until you see the **Publishing succeeded** message.
+9. Finally, configure a tumbling window trigger to run the pipeline at a regular interval and set start and end time parameters. 
+  1. Click the **Add trigger** button, and select **New/Edit**
+    ![Add New Trigger](./media/tutorial-incremental-copy-change-tracking-feature-portal/add-trigger.png)
+  2. Enter a trigger name and specify a start time which is equal to the end time of the debug window above.
+  ![Tumbling Window Trigger](./media/tutorial-incremental-copy-change-tracking-feature-portal/tumbling-window-trigger.png)
+  3. On the next screen specify the following values for the start and end parameters respectively.
+  ```sql
+  @formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd HH:mm:ss.fff')
+  @formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd HH:mm:ss.fff')
+  ```
+  ![Tumbling Window Trigger-2](./media/tutorial-incremental-copy-change-tracking-feature-portal/tumbling-window-trigger-2.png)
+  
+ Note the trigger will only run once it has been published. Additionally the expected behavior of tumbling window is to run all historical intervals from the start date until now. More information regarding tumbling window triggers can be found here. 
+  
 3. Click **Trigger** on the toolbar for the pipeline, and click **Trigger Now**.
 
     ![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/trigger-now-menu-2.png)
