@@ -264,6 +264,7 @@ In this step, you create a pipeline which first checks the number of changed rec
    ![If Condition Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-setting.png)
 
     ii. Click on the pencil icon to edit the True condition.
+    
     iii. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
 
 ![If Condition True - wait](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-wait.png)
