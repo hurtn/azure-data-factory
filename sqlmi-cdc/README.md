@@ -241,15 +241,15 @@ In this step, you create a pipeline which first checks the number of changed rec
 
     ![Lookup Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/first-lookup-activity-name.png)
 4. Switch to the **Settings** in the **Properties** window:
-    i. Specify the SQL MI dataset name for the **Source Dataset** field.
-    ii. Select the Query option and enter the following in to the query box:
+    1. Specify the SQL MI dataset name for the **Source Dataset** field.
+    2. Select the Query option and enter the following in to the query box:
 	```sql
 	DECLARE  @from_lsn binary(10), @to_lsn binary(10);  
 	SET @from_lsn =sys.fn_cdc_get_min_lsn('dbo_customers');  
 	SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal',  GETDATE());
 	SELECT count(1) changecount FROM cdc.fn_cdc_get_net_changes_dbo_customers(@from_lsn, @to_lsn, 'all')
 	```
-    iii. Enable **First row only**
+    3. Enable **First row only**
 
     ![Lookup Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/first-lookup-activity-settings.png)
 5. Click the **Preview data** button to ensure a valid output is obtained by the lookup activity
@@ -257,21 +257,19 @@ In this step, you create a pipeline which first checks the number of changed rec
 6. Expand **Iteration & conditionals** in the **Activities** toolbox, and drag-drop the **If Condition** activity to the pipeline designer surface. Set the name of the activity to **HasChangedRows**. 
       ![If Condition Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-name.png)
 7. Switch to the **Activities** in the **Properties** window:
-    
-   i . Enter the following **Expression**
+
+    1. Enter the following **Expression**
 
 ```adf
 		@greater(int(activity('GetChangeCount').output.firstRow.changecount),0)
 ```
    
    ![If Condition Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-setting.png)
-    
-   ii. Click on the pencil icon to edit the True condition.
-    
-   iii. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
+    2. Click on the pencil icon to edit the True condition.
+    3. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
 
 ![If Condition True - wait](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-wait.png)
-    iv. Click on the IncrementalCopyPipeline breadcrumb to return to the main pipeline.
+    4. Click on the IncrementalCopyPipeline breadcrumb to return to the main pipeline.
 8. Run the pipeline in **Debug** mode to verify the pipeline executes successfully. 
 
       ![Pipeline - debug](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug.png)
