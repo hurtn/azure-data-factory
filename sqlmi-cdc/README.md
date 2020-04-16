@@ -295,19 +295,19 @@ In this step, you create a pipeline which first checks the number of changed rec
 
 11. Click preview to verify that the query returns the changed rows correctly.
 
-![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-preview.png)
+    ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-preview.png)
 12. Switch to the **Sink** tab, and specify the Azure Storage dataset for the **Sink Dataset** field.
 
-![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-sink-settings.png)
-13. **Connect both Lookup activities to the Copy activity** one by one. Drag the **green** button attached to the **Lookup** activity to the **Copy** activity.
+    ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-sink-settings.png)
+13. Click back to the main pipeline canvas and connect the **Lookup** activity to the **If Condition** activity one by one. Drag the **green** button attached to the **Lookup** activity to the **If Condition** activity.
 
-![Connect Lookup and Copy activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-lookup-and-copy.png)
-14. Drag-and-drop the **Stored Procedure** activity from the **Activities** toolbox to the pipeline designer surface. Set the name of the activity to **StoredProceduretoUpdateChangeTrackingActivity**. This activity updates the change tracking version in the **table_store_ChangeTracking_version** table.
+![Connect Lookup and Copy activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-lookup-and-if.png)
+14. Click Debug to test the pipeline and verify that a file is generated in the storage location.
 
-![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/stored-procedure-activity-name.png)
-15. Switch to the *SQL Account** tab, and select **AzureSqlDatabaseLinkedService** for **Linked service**.
+![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug-2.png)
+15. If successful click **Publish**.
 
-![Stored Procedure Activity - SQL Account](./media/tutorial-incremental-copy-change-tracking-feature-portal/sql-account-tab.png)
+![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-publish.png)
 16. Switch to the **Stored Procedure** tab, and do the following steps:
 
     1. For **Stored procedure name**, select **Update_ChangeTracking_Version**.  
