@@ -301,36 +301,22 @@ In this step, you create a pipeline which first checks the number of changed rec
     ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-sink-settings.png)
 13. Click back to the main pipeline canvas and connect the **Lookup** activity to the **If Condition** activity one by one. Drag the **green** button attached to the **Lookup** activity to the **If Condition** activity.
 
-![Connect Lookup and Copy activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-lookup-and-if.png)
-14. Click Debug to test the pipeline and verify that a file is generated in the storage location.
-
-![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug-2.png)
-15. If successful click **Publish**.
-
-![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-publish.png)
-16. Switch to the **Stored Procedure** tab, and do the following steps:
-
-    1. For **Stored procedure name**, select **Update_ChangeTracking_Version**.  
-    2. Select **Import parameter**.
-    3. In the **Stored procedure parameters** section, specify following values for the parameters:
-
-        | Name | Type | Value |
-        | ---- | ---- | ----- |
-        | CurrentTrackingVersion | Int64 | @{activity('LookupCurrentChangeTrackingVersionActivity').output.firstRow.CurrentChangeTrackingVersion} |
-        | TableName | String | @{activity('LookupLastChangeTrackingVersionActivity').output.firstRow.TableName} |
-
-        ![Stored Procedure Activity - Parameters](./media/tutorial-incremental-copy-change-tracking-feature-portal/stored-procedure-parameters.png)
-17. **Connect the Copy activity to the Stored Procedure Activity**. Drag-and-drop the **green** button attached to the Copy activity to the Stored Procedure activity.
-
-    ![Connect Copy and Stored Procedure activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-copy-stored-procedure.png)
-18. Click **Validate** on the toolbar. Confirm that there are no validation errors. Close the **Pipeline Validation Report** window by clicking **>>**.
+    ![Connect Lookup and Copy activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-lookup-and-if.png)
+14. Click **Validate** on the toolbar. Confirm that there are no validation errors. Close the **Pipeline Validation Report** window by clicking **>>**.
 
     ![Validate button](./media/tutorial-incremental-copy-change-tracking-feature-portal/validate-button.png)
-19. Publish entities (linked services, datasets, and pipelines) to the Data Factory service by clicking the **Publish All** button. Wait until you see the **Publishing succeeded** message.
+15. Click Debug to test the pipeline and verify that a file is generated in the storage location.
+
+![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug-2.png)
+16. Click **Validate** on the toolbar. Confirm that there are no validation errors. Close the **Pipeline Validation Report** window by clicking **>>**.
+
+    ![Validate button](./media/tutorial-incremental-copy-change-tracking-feature-portal/validate-button.png)
+17. Publish entities (linked services, datasets, and pipelines) to the Data Factory service by clicking the **Publish all** button. Wait until you see the **Publishing succeeded** message.
 
        ![Publish button](./media/tutorial-incremental-copy-change-tracking-feature-portal/publish-button-2.png)    
 
-### Run the incremental copy pipeline
+### Configure the tumbling window trigger and CDC window parameters 
+In this step, you create a a tumbling window trigger to run the job on a frequent schedule. You will use the WindowStart and WindowEnd system variables of the tumbling window trigger which will be passed as parameters to your pipeline to be used in CDC query.
 1. Click **Trigger** on the toolbar for the pipeline, and click **Trigger Now**.
 
     ![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/trigger-now-menu-2.png)
