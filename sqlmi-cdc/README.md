@@ -259,22 +259,24 @@ In this step, you create a pipeline which first checks the number of changed rec
 7. Switch to the **Activities** in the **Properties** window:
 
    1. Enter the following **Expression**
+   
     ```adf
     @greater(int(activity('GetChangeCount').output.firstRow.changecount),0)
     ```
+    
    2. Click on the pencil icon to edit the True condition.
    ![If Condition Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-setting.png)
    3. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
 
-![If Condition True - wait](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-wait.png)
-    4. Click on the IncrementalCopyPipeline breadcrumb to return to the main pipeline.
+   ![If Condition True - wait](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-wait.png)
+   4. Click on the IncrementalCopyPipeline breadcrumb to return to the main pipeline.
 8. Run the pipeline in **Debug** mode to verify the pipeline executes successfully. 
 
-      ![Pipeline - debug](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug.png)
-8. Next, return to the True condition step and delete the **Wait** activity. In the **Activities** toolbox, expand **Move & transform**, and drag-drop the **Copy** activity to the pipeline designer surface. Set the name of the activity to **IncrementalCopyActivity**. 
+   ![Pipeline - debug](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug.png)
+9. Next, return to the True condition step and delete the **Wait** activity. In the **Activities** toolbox, expand **Move & transform**, and drag-drop the **Copy** activity to the pipeline designer surface. Set the name of the activity to **IncrementalCopyActivity**. 
 
-![Copy Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-name.png)
-9. Switch to the **Source** tab in the **Properties** window, and do the following steps:
+   ![Copy Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-name.png)
+10. Switch to the **Source** tab in the **Properties** window, and do the following steps:
 
    1. Specify the SQL MI dataset name for the **Source Dataset** field. 
    2. Select **Query** for **Use Query**.
@@ -287,22 +289,22 @@ In this step, you create a pipeline which first checks the number of changed rec
      SELECT * FROM cdc.fn_cdc_get_net_changes_dbo_customers(@from_lsn, @to_lsn, 'all')
 ```
 ![Copy Activity - source settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-settings.png)
-10. Click preview to verify that the query returns the changed rows correctly.
+11. Click preview to verify that the query returns the changed rows correctly.
 
 ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-source-preview.png)
-11. Switch to the **Sink** tab, and specify the Azure Storage dataset for the **Sink Dataset** field.
+12. Switch to the **Sink** tab, and specify the Azure Storage dataset for the **Sink Dataset** field.
 
 ![Copy Activity - sink settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-sink-settings.png)
-12. **Connect both Lookup activities to the Copy activity** one by one. Drag the **green** button attached to the **Lookup** activity to the **Copy** activity.
+13. **Connect both Lookup activities to the Copy activity** one by one. Drag the **green** button attached to the **Lookup** activity to the **Copy** activity.
 
 ![Connect Lookup and Copy activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-lookup-and-copy.png)
-11. Drag-and-drop the **Stored Procedure** activity from the **Activities** toolbox to the pipeline designer surface. Set the name of the activity to **StoredProceduretoUpdateChangeTrackingActivity**. This activity updates the change tracking version in the **table_store_ChangeTracking_version** table.
+14. Drag-and-drop the **Stored Procedure** activity from the **Activities** toolbox to the pipeline designer surface. Set the name of the activity to **StoredProceduretoUpdateChangeTrackingActivity**. This activity updates the change tracking version in the **table_store_ChangeTracking_version** table.
 
 ![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/stored-procedure-activity-name.png)
-12. Switch to the *SQL Account** tab, and select **AzureSqlDatabaseLinkedService** for **Linked service**.
+15. Switch to the *SQL Account** tab, and select **AzureSqlDatabaseLinkedService** for **Linked service**.
 
 ![Stored Procedure Activity - SQL Account](./media/tutorial-incremental-copy-change-tracking-feature-portal/sql-account-tab.png)
-13. Switch to the **Stored Procedure** tab, and do the following steps:
+16. Switch to the **Stored Procedure** tab, and do the following steps:
 
     1. For **Stored procedure name**, select **Update_ChangeTracking_Version**.  
     2. Select **Import parameter**.
@@ -314,13 +316,13 @@ In this step, you create a pipeline which first checks the number of changed rec
         | TableName | String | @{activity('LookupLastChangeTrackingVersionActivity').output.firstRow.TableName} |
 
         ![Stored Procedure Activity - Parameters](./media/tutorial-incremental-copy-change-tracking-feature-portal/stored-procedure-parameters.png)
-14. **Connect the Copy activity to the Stored Procedure Activity**. Drag-and-drop the **green** button attached to the Copy activity to the Stored Procedure activity.
+17. **Connect the Copy activity to the Stored Procedure Activity**. Drag-and-drop the **green** button attached to the Copy activity to the Stored Procedure activity.
 
     ![Connect Copy and Stored Procedure activities](./media/tutorial-incremental-copy-change-tracking-feature-portal/connect-copy-stored-procedure.png)
-15. Click **Validate** on the toolbar. Confirm that there are no validation errors. Close the **Pipeline Validation Report** window by clicking **>>**.
+18. Click **Validate** on the toolbar. Confirm that there are no validation errors. Close the **Pipeline Validation Report** window by clicking **>>**.
 
     ![Validate button](./media/tutorial-incremental-copy-change-tracking-feature-portal/validate-button.png)
-16. Publish entities (linked services, datasets, and pipelines) to the Data Factory service by clicking the **Publish All** button. Wait until you see the **Publishing succeeded** message.
+19. Publish entities (linked services, datasets, and pipelines) to the Data Factory service by clicking the **Publish All** button. Wait until you see the **Publishing succeeded** message.
 
        ![Publish button](./media/tutorial-incremental-copy-change-tracking-feature-portal/publish-button-2.png)    
 
