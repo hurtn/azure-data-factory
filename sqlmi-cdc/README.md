@@ -258,11 +258,10 @@ In this step, you create a pipeline which first checks the number of changed rec
       ![If Condition Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-name.png)
 7. Switch to the **Activities** in the **Properties** window:
 
-    1. Enter the following **Expression**
-
-```adf
-		@greater(int(activity('GetChangeCount').output.firstRow.changecount),0)
-```
+   1. Enter the following **Expression**
+    ```adf
+    @greater(int(activity('GetChangeCount').output.firstRow.changecount),0)
+    ```
    2. Click on the pencil icon to edit the True condition.
    ![If Condition Activity - settings](./media/tutorial-incremental-copy-change-tracking-feature-portal/if-condition-activity-setting.png)
    3. Expand **General** in the **Activities** toolbox and drag-drop a **Wait** activity to the pipeline designer surface. This is a temporary activity in order to debug the If condition and will be changed later in the tutorial. 
