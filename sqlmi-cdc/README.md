@@ -307,18 +307,18 @@ In this step, you create a pipeline which first checks the number of changed rec
     ![Validate button](./media/tutorial-incremental-copy-change-tracking-feature-portal/validate-button.png)
 15. Click Debug to test the pipeline and verify that a file is generated in the storage location.
 
-![Stored Procedure Activity - name](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug-2.png)
+    ![Incremental pipeline debug-2](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-debug-2.png)
 16. Click **Validate** on the toolbar. Confirm that there are no validation errors. Close the **Pipeline Validation Report** window by clicking **>>**.
 
     ![Validate button](./media/tutorial-incremental-copy-change-tracking-feature-portal/validate-button.png)
 17. Publish entities (linked services, datasets, and pipelines) to the Data Factory service by clicking the **Publish all** button. Wait until you see the **Publishing succeeded** message.
 
-       ![Publish button](./media/tutorial-incremental-copy-change-tracking-feature-portal/publish-button-2.png)    
+    ![Publish button](./media/tutorial-incremental-copy-change-tracking-feature-portal/publish-button-2.png)    
 
 ### Configure the tumbling window trigger and CDC window parameters 
-In this step, you create a a tumbling window trigger to run the job on a frequent schedule. You will use the WindowStart and WindowEnd system variables of the tumbling window trigger which will be passed as parameters to your pipeline to be used in CDC query.
+In this step, you create a a tumbling window trigger to run the job on a frequent schedule. You will use the WindowStart and WindowEnd system variables of the tumbling window trigger and pass them as parameters to your pipeline to be used in the CDC query.
 
-1. Click in the parameters tab of the **IncrementalCopyPipeline** pipeline. Using the **+ New** button add two parameters (triggerStartTime and triggerEndTime) to the pipeline which will represent the tumbling window start and end time. For debugging purposes add default values in the format YYYY-MM-DD HH24:MI:SS.FFF but ensure the triggerStartTime is not prior to CDC being enabled on the table, otherwise this will result in an error.
+1. Navigate to the **Parameters** tab of the **IncrementalCopyPipeline** pipeline and using the **+ New** button add two parameters (**triggerStartTime** and **triggerEndTime**) to the pipeline which will represent the tumbling window start and end time. For debugging purposes add default values in the format **YYYY-MM-DD HH24:MI:SS.FFF** but ensure the triggerStartTime is not prior to CDC being enabled on the table, otherwise this will result in an error.
     ![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-copy-pipeline-parameters.png)
 
 2. Click on the settings tab of the **Lookup** activity and configure the query to use the start and end parameters. Copy the following into the query:
@@ -330,6 +330,30 @@ In this step, you create a a tumbling window trigger to run the job on a frequen
     SET @to_lsn = sys.fn_cdc_map_time_to_lsn(''largest less than or equal'', @end_time);
     SELECT count(1) changecount FROM cdc.fn_cdc_get_net_changes_dbo_customers(@from_lsn, @to_lsn, ''all'')')
     ```
+
+3. Navigate to the **Copy** activity in the True case of the **If Condition** activity and click on the **Source** tab. Copy the following into the query:
+    ```sql
+    @concat('DECLARE @begin_time datetime, @end_time datetime, @from_lsn binary(10), @to_lsn binary(10); 
+    SET @begin_time = ''',pipeline().parameters.triggerStartTime,''';
+    SET @end_time = ''',pipeline().parameters.triggerEndTime,''';
+    SET @from_lsn = sys.fn_cdc_map_time_to_lsn(''smallest greater than or equal'', @begin_time);
+    SET @to_lsn = sys.fn_cdc_map_time_to_lsn(''largest less than or equal'', @end_time);
+    SELECT * FROM cdc.fn_cdc_get_net_changes_dbo_customers(@from_lsn, @to_lsn, ''all'')')
+    ```
+3. Click on the **Sink** tab of the **Copy** activity and click **Open** to edit the dataset properties. Click on the **Parameters** tab and add a new parameter called **triggerStart**    
+
+    ![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/sink-dataset-configuration-2.png)
+4. Next, configure the dataset properties to store the data in a **customers/incremental** subdirectory with date based partitions.
+    1. Click on the **Connection** tab of the dataset properties and add dynamic content for both the **Directory** and the **File** sections. 
+    2. Enter the following expression in the **Directory** section by clicking on the dynamic content link under the textbox:
+      ```sql
+      @concat('customers/incremental/',formatDateTime(dataset().triggerStart,'yyyy/MM/dd'))
+      ```
+    3. Enter the folllowing expression in the **File** section. This will create file names based on the trigger start date and time, suffixed with the csv extension:
+      ```sql
+      @concat(formatDateTime(dataset().triggerStart,'yyyyMMddHHmmssfff'),'.csv')
+      ```
+    ![Trigger Now menu](./media/tutorial-incremental-copy-change-tracking-feature-portal/sink-dataset-configuration-3.png)
 
 3. Click **Trigger** on the toolbar for the pipeline, and click **Trigger Now**.
 
