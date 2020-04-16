@@ -29,7 +29,7 @@ You perform the following steps in this tutorial:
 > * Create, run, and monitor the incremental copy pipeline
 
 ## Overview
-In a data integration solution, incrementally loading data after initial data loads is a widely used scenario. In some cases, the changed data within a period in your source data store can be easily to sliced up (for example, LastModifyTime, CreationTime). In some cases, there is no explicit way to identify the delta data from last time you processed the data. The Change Data Capture technology supported by data stores such as Azure SQL Managed Instances (MI) and SQL Server can be used to identify the delta data.  This tutorial describes how to use Azure Data Factory with SQL Change Data Capture technology to incrementally load delta data from Azure SQL Managed Instance into Azure Blob Storage.  For more concrete information about SQL Change Data Capture technology, see [Change data capture in SQL Server](/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver15).
+The Change Data Capture technology supported by data stores such as Azure SQL Managed Instances (MI) and SQL Server can be used to identify changed data.  This tutorial describes how to use Azure Data Factory with SQL Change Data Capture technology to incrementally load delta data from Azure SQL Managed Instance into Azure Blob Storage.  For more concrete information about SQL Change Data Capture technology, see [Change data capture in SQL Server](/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver15).
 
 ## End-to-end workflow
 Here are the typical end-to-end workflow steps to incrementally load data using the Change Data Capture technology.
@@ -37,21 +37,9 @@ Here are the typical end-to-end workflow steps to incrementally load data using 
 > [!NOTE]
 > Both Azure SQL MI and SQL Server support the Change Data Capture technology. This tutorial uses Azure SQL Managed Instance as the source data store. You can also use an on-premises SQL Server.
 
-1. **Initial loading of historical data** (run once):
-    1. Enable Change Data Capture technology in the source Azure SQL MI database.
-    2. Get the initial value of SYS_CHANGE_VERSION in the Azure SQL MI database as the baseline to capture changed data.
-    3. Load full data from the Azure SQL MI database into an Azure blob storage.
-2. **Incremental loading of delta data on a schedule** (run periodically after the initial loading of data):
-    1. Get the old and new SYS_CHANGE_VERSION values.
-    3. Load the delta data by joining the primary keys of changed rows (between two SYS_CHANGE_VERSION values) from **sys.change_tracking_tables** with data in the **source table**, and then move the delta data to destination.
-    4. Update the SYS_CHANGE_VERSION for the delta loading next time.
-
 ## High-level solution
 In this tutorial, you create two pipelines that perform the following two operations:  
 
-1. **Initial load:** you create a pipeline with a copy activity that copies the entire data from the source data store (Azure SQL Database) to the destination data store (Azure Blob Storage).
-
-    ![Full loading of data](media/tutorial-incremental-copy-change-tracking-feature-portal/full-load-flow-diagram.png)
 1.  **Incremental load:** you create a pipeline with the following activities, and run it periodically.
     1. Create **two lookup activities** to get the old and new SYS_CHANGE_VERSION from Azure SQL Database and pass it to copy activity.
     2. Create **one copy activity** to copy the inserted/updated/deleted data between the two SYS_CHANGE_VERSION values from Azure SQL Database to Azure Blob Storage.
@@ -63,7 +51,7 @@ In this tutorial, you create two pipelines that perform the following two operat
 If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/) account before you begin.
 
 ## Prerequisites
-* **Azure SQL Database**. You use the database as the **source** data store. If you don't have an Azure SQL Database, see the [Create an Azure SQL database](../sql-database/sql-database-get-started-portal.md) article for steps to create one.
+* **Azure SQL Database Managed Instance**. You use the database as the **source** data store. If you don't have an Azure SQL Database Managed Instance, see the [Create an Azure SQL Database Managed Instance](https://docs.microsoft.com/en-gb/azure/sql-database/sql-database-managed-instance-get-started) article for steps to create one.
 * **Azure Storage account**. You use the blob storage as the **sink** data store. If you don't have an Azure storage account, see the [Create a storage account](../storage/common/storage-account-create.md) article for steps to create one. Create a container named **raw**. 
 
 ### Create a data source table in your Azure SQL database
