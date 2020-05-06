@@ -24,9 +24,9 @@ You perform the following steps in this tutorial:
 > * Create a data factory.
 > * Create linked services.
 > * Create source, sink, and change data capture datasets.
-> * Create, run, and monitor the full copy pipeline
-> * Add or update data in the source table
-> * Create, run, and monitor the incremental copy pipeline
+> * Create, debug and run the pipeline to check for changed data
+> * Add and modify data in the source table
+> * Complete, run and monitor the full incremental copy pipeline
 
 ## Overview
 The Change Data Capture technology supported by data stores such as Azure SQL Managed Instances (MI) and SQL Server can be used to identify changed data.  This tutorial describes how to use Azure Data Factory with SQL Change Data Capture technology to incrementally load delta data from Azure SQL Managed Instance into Azure Blob Storage.  For more concrete information about SQL Change Data Capture technology, see [Change data capture in SQL Server](/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver15).
@@ -38,15 +38,11 @@ Here are the typical end-to-end workflow steps to incrementally load data using 
 > Both Azure SQL MI and SQL Server support the Change Data Capture technology. This tutorial uses Azure SQL Managed Instance as the source data store. You can also use an on-premises SQL Server.
 
 ## High-level solution
-In this tutorial, you create two pipelines that perform the following two operations:  
+In this tutorial, you create a pipelines that performs the following operations:  
 
-1.  **Incremental load:** you create a pipeline with the following activities, and run it periodically.
-    1. Create **two lookup activities** to get the old and new SYS_CHANGE_VERSION from Azure SQL Database and pass it to copy activity.
-    2. Create **one copy activity** to copy the inserted/updated/deleted data between the two SYS_CHANGE_VERSION values from Azure SQL Database to Azure Blob Storage.
-    3. Create **one stored procedure activity** to update the value of SYS_CHANGE_VERSION for the next pipeline run.
-
-    ![Increment load flow diagram](media/tutorial-incremental-copy-change-tracking-feature-portal/incremental-load-flow-diagram.png)
-
+   1. Create a **lookup activity** to count the number of changed records in the Azure SQL Managed Instance CDC table and pass it to an IF Condition activity.
+   2. Create a **If Condition** to check whether there are changed records and if so invoke the copy activity
+   3. Create a **copy activity** to copy the inserted/updated/deleted data between the CDC table to Azure Blob Storage.
 
 If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/) account before you begin.
 
