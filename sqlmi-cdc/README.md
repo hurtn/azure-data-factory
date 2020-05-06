@@ -387,10 +387,10 @@ In this step, you create a a tumbling window trigger to run the job on a frequen
 
 
 ### Monitor the incremental copy pipeline
-1. Click the **Monitor** tab on the left. You see the pipeline run in the list and its status. To refresh the list, click **Refresh**. The links in the **Actions** column let you view activity runs associated with the pipeline run and to rerun the pipeline.
+1. Click the **Monitor** tab on the left. You see the pipeline run in the list and its status. To refresh the list, click **Refresh**. Hover near the name of the pipeline to access the Rerun action and Consumption report.
 
     ![Pipeline runs](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-pipeline-runs.png)
-2. To view activity runs associated with the pipeline run, click the **View Activity Runs** link in the **Actions** column. There is only one activity in the pipeline, so you see only one entry in the list. To switch back to the pipeline runs view, click **Pipelines** link at the top.
+2. To view activity runs associated with the pipeline run, click the Pipeline name. If changed data was detected there will be three activities including the copy activity otherwise there will only be two entries in the list. To switch back to the pipeline runs view, click **All Pipelines** link at the top.
 
     ![Activity runs](./media/tutorial-incremental-copy-change-tracking-feature-portal/inc-copy-activity-runs.png)
 
