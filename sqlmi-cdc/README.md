@@ -25,7 +25,7 @@ You perform the following steps in this tutorial:
 > * Create linked services.
 > * Create source, sink, and change data capture datasets.
 > * Create, debug and run the pipeline to check for changed data
-> * Add and modify data in the source table
+> * Modify data in the source table
 > * Complete, run and monitor the full incremental copy pipeline
 
 ## Overview
@@ -40,8 +40,8 @@ Here are the typical end-to-end workflow steps to incrementally load data using 
 ## High-level solution
 In this tutorial, you create a pipelines that performs the following operations:  
 
-   1. Create a **lookup activity** to count the number of changed records in the Azure SQL Managed Instance CDC table and pass it to an IF Condition activity.
-   2. Create a **If Condition** to check whether there are changed records and if so invoke the copy activity
+   1. Create a **lookup activity** to count the number of changed records in the SQL Database CDC table and pass it to an IF Condition activity.
+   2. Create an **If Condition** to check whether there are changed records and if so, invoke the copy activity.
    3. Create a **copy activity** to copy the inserted/updated/deleted data between the CDC table to Azure Blob Storage.
 
 If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/) account before you begin.
@@ -108,20 +108,20 @@ If you don't have an Azure subscription, create a [free](https://azure.microsoft
    The name of the Azure data factory must be **globally unique**. If you receive the following error, change the name of the data factory (for example, yournameADFTutorialDataFactory) and try creating again. See [Data Factory - Naming Rules](naming-rules.md) article for naming rules for Data Factory artifacts.
 
        `Data factory name “ADFTutorialDataFactory” is not available`
-3. Select your Azure **subscription** in which you want to create the data factory.
-4. For the **Resource Group**, do one of the following steps:
+3. Select **V2** for the **version**.
+4. Select your Azure **subscription** in which you want to create the data factory.
+5. For the **Resource Group**, do one of the following steps:
 
       - Select **Use existing**, and select an existing resource group from the drop-down list.
       - Select **Create new**, and enter the name of a resource group.   
          
         To learn about resource groups, see [Using resource groups to manage your Azure resources](../azure-resource-manager/management/overview.md).  
-4. Select **V2 (Preview)** for the **version**.
 5. Select the **location** for the data factory. Only locations that are supported are displayed in the drop-down list. The data stores (Azure Storage, Azure SQL Database, etc.) and computes (HDInsight, etc.) used by data factory can be in other regions.
-6. Select **Pin to dashboard**.     
-7. Click **Create**.      
-8. On the dashboard, you see the following tile with status: **Deploying data factory**.
+6. De-select **Enable GIT**.     
+7. Click **Create**.
+8. Once the deployment is complete, click on **Go to resource**
 
-	![deploying data factory tile](media/tutorial-incremental-copy-change-tracking-feature-portal/deploying-data-factory.png)
+   ![Data factory home page](./media/tutorial-incremental-copy-change-tracking-feature-portal/data-factory-deploy-complete.png)
 9. After the creation is complete, you see the **Data Factory** page as shown in the image.
 
    ![Data factory home page](./media/tutorial-incremental-copy-change-tracking-feature-portal/data-factory-home-page.png)
