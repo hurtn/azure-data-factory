@@ -103,7 +103,7 @@ If you don't have an Azure subscription, create a [free](https://azure.microsoft
 
 2. In the **New data factory** page, enter **ADFTutorialDataFactory** for the **name**.
 
-     ![New data factory page](./media/tutorial-incremental-copy-change-tracking-feature-portal/new-azure-data-factory.png)
+     ![New data factory page](.media/tutorial-incremental-copy-change-tracking-feature-portal/new-azure-data-factory.png)
 
    The name of the Azure data factory must be **globally unique**. If you receive the following error, change the name of the data factory (for example, yournameADFTutorialDataFactory) and try creating again. See [Data Factory - Naming Rules](naming-rules.md) article for naming rules for Data Factory artifacts.
 
