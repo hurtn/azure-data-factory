@@ -99,11 +99,11 @@ If you don't have an Azure subscription, create a [free](https://azure.microsoft
 1. Launch **Microsoft Edge** or **Google Chrome** web browser. Currently, Data Factory UI is supported only in Microsoft Edge and Google Chrome web browsers.
 1. On the left menu, select **Create a resource** > **Data + Analytics** > **Data Factory**:
 
-   ![Data Factory selection in the "New" pane](.media/tutorial-incremental-copy-change-tracking-feature-portal/new-azure-data-factory-menu.png)
+   ![Data Factory selection in the "New" pane](./media/tutorial-incremental-copy-change-tracking-feature-portal/new-azure-data-factory-menu.png)
 
 2. In the **New data factory** page, enter **ADFTutorialDataFactory** for the **name**.
 
-     ![New data factory page](.media/tutorial-incremental-copy-change-tracking-feature-portal/new-azure-data-factory.png)
+     ![New data factory page](./media/tutorial-incremental-copy-change-tracking-feature-portal/new-azure-data-factory.png)
 
    The name of the Azure data factory must be **globally unique**. If you receive the following error, change the name of the data factory (for example, yournameADFTutorialDataFactory) and try creating again. See [Data Factory - Naming Rules](naming-rules.md) article for naming rules for Data Factory artifacts.
 
