@@ -24,6 +24,9 @@ The post task will ensure that all triggers are enabled/set to Activated Yes in 
 Script location:
 
 Pre script:
+
 https://github.com/hurtn/azure-data-factory/blob/master/CICD/adf-pre-post-custom-script.ps1
+
 Post script:
+
 https://github.com/hurtn/azure-data-factory/blob/master/CICD/adf-pre-post-script.ps1
