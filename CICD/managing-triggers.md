@@ -23,4 +23,6 @@ The post task will ensure that all triggers are enabled/set to Activated Yes in 
 
 Script location:
 
-https://dev.azure.com/AzureSI3/CCM%20Dynamic%20Data%20Reboot/_git/CCM%20Dev%20Repos?path=%2Futilities%2Fadf-pre-post-custom-script.ps1&version=GBadf_publish
+Pre script
+https://github.com/hurtn/azure-data-factory/blob/master/CICD/adf-pre-post-custom-script.ps1
+Post script
